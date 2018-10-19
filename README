@@ -57,3 +57,12 @@ neon is (C) 1999-2005 Joe Orton and others.
 
 Please send bug reports, feature requests, etc. in to the neon mailing
 list at litmus@webdav.org.
+
+
+
+
+## using included xmlparser
+
+./configure --with-included-expat --without-docbook
+make
+
