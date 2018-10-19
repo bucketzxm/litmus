@@ -88,19 +88,19 @@ struct lock_ctx {
 #define ELM_LOCK_FIRST (NE_PROPS_STATE_TOP + 66)
 
 #define ELM_lockdiscovery (ELM_LOCK_FIRST)
-#define ELM_activelock (ELM_LOCK_FIRST + 1)
-#define ELM_lockscope (ELM_LOCK_FIRST + 2)
-#define ELM_locktype (ELM_LOCK_FIRST + 3)
-#define ELM_depth (ELM_LOCK_FIRST + 4)
-#define ELM_owner (ELM_LOCK_FIRST + 5)
-#define ELM_timeout (ELM_LOCK_FIRST + 6)
-#define ELM_locktoken (ELM_LOCK_FIRST + 7)
-#define ELM_lockinfo (ELM_LOCK_FIRST + 8)
-#define ELM_write (ELM_LOCK_FIRST + 9)
-#define ELM_exclusive (ELM_LOCK_FIRST + 10)
-#define ELM_shared (ELM_LOCK_FIRST + 11)
-#define ELM_href (ELM_LOCK_FIRST + 12)
-#define ELM_prop (NE_207_STATE_PROP)
+#define ELM_activelock (ELM_LOCK_FIRST + 1)  //267
+#define ELM_lockscope (ELM_LOCK_FIRST + 2)   //268
+#define ELM_locktype (ELM_LOCK_FIRST + 3)    //269
+#define ELM_depth (ELM_LOCK_FIRST + 4)       //270
+#define ELM_owner (ELM_LOCK_FIRST + 5)       //271
+#define ELM_timeout (ELM_LOCK_FIRST + 6)     //272
+#define ELM_locktoken (ELM_LOCK_FIRST + 7)   //273
+#define ELM_lockinfo (ELM_LOCK_FIRST + 8)    //274
+#define ELM_write (ELM_LOCK_FIRST + 9)       //275
+#define ELM_exclusive (ELM_LOCK_FIRST + 10)  //276
+#define ELM_shared (ELM_LOCK_FIRST + 11)     //277
+#define ELM_href (ELM_LOCK_FIRST + 12)       //278
+#define ELM_prop (NE_207_STATE_PROP)         //279
 
 static const struct ne_xml_idmap element_map[] = {
 #define ELM(x) { "DAV:", #x, ELM_ ## x }
@@ -431,14 +431,14 @@ static int parse_depth(const char *depth)
 static long parse_timeout(const char *timeout)
 {
     if (strcasecmp(timeout, "infinite") == 0) {
-	return NE_TIMEOUT_INFINITE;
+      return NE_TIMEOUT_INFINITE;
     } else if (strncasecmp(timeout, "Second-", 7) == 0) {
-	long to = strtol(timeout+7, NULL, 10);
-	if (to == LONG_MIN || to == LONG_MAX)
-	    return NE_TIMEOUT_INVALID;
-	return to;
+      long to = strtol(timeout+7, NULL, 10);
+      if (to == LONG_MIN || to == LONG_MAX)
+        return NE_TIMEOUT_INVALID;
+      return to;
     } else {
-	return NE_TIMEOUT_INVALID;
+      return NE_TIMEOUT_INVALID;
     }
 }
 
@@ -451,14 +451,14 @@ static void discover_results(void *userdata, const char *href,
 
     /* Require at least that the lock has a token. */
     if (lock->token) {
-	if (status && status->klass != 2) {
-	    ctx->results(ctx->userdata, NULL, lock->uri.path, status);
-	} else {
-	    ctx->results(ctx->userdata, lock, lock->uri.path, NULL);
-	}
+      if (status && status->klass != 2) {
+        ctx->results(ctx->userdata, NULL, lock->uri.path, status);
+      } else {
+        ctx->results(ctx->userdata, lock, lock->uri.path, NULL);
+      }
     }
     else if (status) {
-	ctx->results(ctx->userdata, NULL, href, status);
+      ctx->results(ctx->userdata, NULL, href, status);
     }
 	
     ne_lock_destroy(lock);
@@ -471,34 +471,34 @@ end_element_common(struct ne_lock *l, int state, const char *cdata)
 {
     switch (state) { 
     case ELM_write:
-	l->type = ne_locktype_write;
-	break;
+      l->type = ne_locktype_write;
+      break;
     case ELM_exclusive:
-	l->scope = ne_lockscope_exclusive;
-	break;
+      l->scope = ne_lockscope_exclusive;
+      break;
     case ELM_shared:
-	l->scope = ne_lockscope_shared;
-	break;
+      l->scope = ne_lockscope_shared;
+      break;
     case ELM_depth:
-	NE_DEBUG(NE_DBG_LOCKS, "Got depth: %s\n", cdata);
-	l->depth = parse_depth(cdata);
-	if (l->depth == -1) {
-	    return -1;
-	}
-	break;
+      NE_DEBUG(NE_DBG_LOCKS, "Got depth: %s\n", cdata);
+      l->depth = parse_depth(cdata);
+      if (l->depth == -1) {
+        return -1;
+      }
+      break;
     case ELM_timeout:
-	NE_DEBUG(NE_DBG_LOCKS, "Got timeout: %s\n", cdata);
-	l->timeout = parse_timeout(cdata);
-	if (l->timeout == NE_TIMEOUT_INVALID) {
-	    return -1;
-	}
-	break;
+      NE_DEBUG(NE_DBG_LOCKS, "Got timeout: %s\n", cdata);
+      l->timeout = parse_timeout(cdata);
+      if (l->timeout == NE_TIMEOUT_INVALID) {
+        return -1;
+      }
+      break;
     case ELM_owner:
-	l->owner = strdup(cdata);
-	break;
+      l->owner = strdup(cdata);
+      break;
     case ELM_href:
-	l->token = strdup(cdata);
-	break;
+      l->token = strdup(cdata);
+      break;
     }
     return 0;
 }
@@ -604,10 +604,10 @@ static int lk_startelm(void *userdata, int parent,
         return NE_XML_DECLINE;
 
     if (id == ELM_activelock && !ctx->found) {
-	/* a new activelock */
-	ne_lock_free(&ctx->active);
-	memset(&ctx->active, 0, sizeof ctx->active);
-        ctx->active.timeout = NE_TIMEOUT_INVALID;
+      /* a new activelock */
+      ne_lock_free(&ctx->active);
+      memset(&ctx->active, 0, sizeof ctx->active);
+      ctx->active.timeout = NE_TIMEOUT_INVALID;
     }
 
     ne_buffer_clear(ctx->cdata);
@@ -622,15 +622,16 @@ static int lk_endelm(void *userdata, int state,
     struct lock_ctx *ctx = userdata;
 
     if (ctx->found)
-	return 0;
+      return 0;
 
-    if (end_element_common(&ctx->active, state, ctx->cdata->data))
-	return -1;
+    // for extract timeout value etc. validate the format.
+    if(end_element_common(&ctx->active, state, ctx->cdata->data))
+      return -1;
 
-    if (state == ELM_activelock) {
-	if (ctx->active.token && strcmp(ctx->active.token, ctx->token) == 0) {
-	    ctx->found = 1;
-	}
+    if (state == ELM_activelock ) {
+      if (ctx->active.token && strcmp(ctx->active.token, ctx->token) == 0) {
+        ctx->found = 1;
+      }
     }
 
     return 0;
@@ -683,13 +684,13 @@ int ne_lock_discover(ne_session *sess, const char *uri,
 static void add_timeout_header(ne_request *req, long timeout)
 {
     if (timeout == NE_TIMEOUT_INFINITE) {
-	ne_add_request_header(req, "Timeout", "Infinite");
+      ne_add_request_header(req, "Timeout", "Infinite");
     } 
     else if (timeout == NE_TIMEOUT_CLOSE_TO_INFINITE){
-    ne_print_request_header(req,"Timeout","Infinite, Second-%ld", 3600);
+      ne_print_request_header(req,"Timeout","Infinite, Second-%ld", 3600);
     }
     else if (timeout != NE_TIMEOUT_INVALID && timeout > 0) {
-	ne_print_request_header(req, "Timeout", "Second-%ld", timeout);
+      ne_print_request_header(req, "Timeout", "Second-%ld", timeout);
     }
     /* just ignore it if timeout == 0 or invalid. */
 }
@@ -717,7 +718,7 @@ int ne_lock(ne_session *sess, struct ne_lock *lock)
 		    "<locktype><write/></locktype>", NULL);
 
     if (lock->owner) {
-	ne_buffer_concat(body, "<owner>", lock->owner, "</owner>" EOL, NULL);
+      ne_buffer_concat(body, "<owner>", lock->owner, "</owner>" EOL, NULL);
     }
     ne_buffer_zappend(body, "</lockinfo>" EOL);
 
@@ -744,41 +745,41 @@ int ne_lock(ne_session *sess, struct ne_lock *lock)
     parse_failed = ne_xml_failed(parser);
     
     if (ret == NE_OK && ne_get_status(req)->klass == 2) {
-	if (ctx.token == NULL) {
-	    ret = NE_ERROR;
-	    ne_set_error(sess, _("No Lock-Token header given"));
-	}
-	else if (parse_failed) {
-	    ret = NE_ERROR;
-	    ne_set_error(sess, "%s", ne_xml_get_error(parser));
-	}
-	else if (ne_get_status(req)->code == 207) {
-	    ret = NE_ERROR;
-	    /* TODO: set the error string appropriately */
-	}
-	else if (ctx.found) {
-	    /* it worked: copy over real lock details if given. */
-            if (lock->token) ne_free(lock->token);
-	    lock->token = ctx.token;
-            ctx.token = NULL;
-	    if (ctx.active.timeout != NE_TIMEOUT_INVALID)
-		lock->timeout = ctx.active.timeout;
-	    lock->scope = ctx.active.scope;
-	    lock->type = ctx.active.type;
-	    if (ctx.active.depth >= 0)
-		lock->depth = ctx.active.depth;
-	    if (ctx.active.owner) {
-		if (lock->owner) ne_free(lock->owner);
-		lock->owner = ctx.active.owner;
-		ctx.active.owner = NULL;
-	    }
-	} else {
-	    ret = NE_ERROR;
-	    ne_set_error(sess, _("Response missing activelock for %s"), 
-			 ctx.token);
-	}
+      if (ctx.token == NULL) {
+        ret = NE_ERROR;
+        ne_set_error(sess, _("No Lock-Token header given"));
+      }
+      else if (parse_failed) {
+        ret = NE_ERROR;
+        ne_set_error(sess, "%s", ne_xml_get_error(parser));
+      }
+      else if (ne_get_status(req)->code == 207) {
+        ret = NE_ERROR;
+        /* TODO: set the error string appropriately */
+      }
+      else if (ctx.found) {
+        /* it worked: copy over real lock details if given. */
+        if (lock->token) ne_free(lock->token);
+        lock->token = ctx.token;
+        ctx.token = NULL;
+        if (ctx.active.timeout != NE_TIMEOUT_INVALID)
+          lock->timeout = ctx.active.timeout;
+        lock->scope = ctx.active.scope;
+        lock->type = ctx.active.type;
+        if (ctx.active.depth >= 0)
+          lock->depth = ctx.active.depth;
+        if (ctx.active.owner) {
+          if (lock->owner) ne_free(lock->owner);
+          lock->owner = ctx.active.owner;
+          ctx.active.owner = NULL;
+        }
+      } else {
+        ret = NE_ERROR;
+        ne_set_error(sess, _("Response missing activelock for %s"), 
+                     ctx.token);
+      }
     } else if (ret == NE_OK /* && status != 2xx */) {
-	ret = NE_ERROR;
+      ret = NE_ERROR;
     }
 
     ne_lock_free(&ctx.active);

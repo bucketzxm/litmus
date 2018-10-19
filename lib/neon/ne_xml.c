@@ -382,10 +382,12 @@ static void end_element(void *userdata, const ne_xml_char *name)
     ne_xml_parser *p = userdata;
     struct element *elm = p->current;
 
-    if (p->failure) return;
-	
+    if (p->failure){
+      return;
+    }
+
     if (p->prune) {
-        if (p->prune-- > 1) return;
+        if (p->prune-- > 1) return; 
     } else if (elm->handler->endelm_cb) {
         p->failure = elm->handler->endelm_cb(elm->handler->userdata, elm->state,
                                              elm->nspace, elm->name);
@@ -394,7 +396,7 @@ static void end_element(void *userdata, const ne_xml_char *name)
                      elm->state, p->failure);
         }
     }
-    
+
     NE_DEBUG(NE_DBG_XML, "XML: end-element (%d, {%s, %s})\n",
              elm->state, elm->nspace, elm->name);
 
@@ -437,17 +439,16 @@ ne_xml_parser *ne_xml_create(void)
 #ifdef HAVE_EXPAT
     p->parser = XML_ParserCreate(NULL);
     if (p->parser == NULL) {
-	abort();
+      abort();
     }
     XML_SetElementHandler(p->parser, start_element, end_element);
     XML_SetCharacterDataHandler(p->parser, char_data);
     XML_SetUserData(p->parser, (void *) p);
     XML_SetXmlDeclHandler(p->parser, decl_handler);
 #else
-    p->parser = xmlCreatePushParserCtxt(&sax_handler, 
-					(void *)p, NULL, 0, NULL);
+    p->parser = xmlCreatePushParserCtxt(&sax_handler, (void *)p, NULL, 0, NULL);
     if (p->parser == NULL) {
-	abort();
+      abort();
     }
     p->parser->replaceEntities = 1;
 #endif
@@ -470,11 +471,11 @@ void ne_xml_push_handler(ne_xml_parser *p,
     /* If this is the first handler registered, update the
      * base pointer too. */
     if (p->top_handlers == NULL) {
-	p->root->handler = hand;
-	p->top_handlers = hand;
+      p->root->handler = hand;
+      p->top_handlers = hand;
     } else {
-	p->top_handlers->next = hand;
-	p->top_handlers = hand;
+      p->top_handlers->next = hand;
+      p->top_handlers = hand;
     }
 }
 
@@ -491,17 +492,17 @@ int ne_xml_parse(ne_xml_parser *p, const char *block, size_t len)
     int ret, flag;
     /* duck out if it's broken */
     if (p->failure) {
-	NE_DEBUG(NE_DBG_XMLPARSE, "XML: Failed; ignoring %" NE_FMT_SIZE_T 
+      NE_DEBUG(NE_DBG_XMLPARSE, "XML: Failed; ignoring %" NE_FMT_SIZE_T 
                  " bytes.\n", len);
-	return p->failure;
+      return p->failure;
     }
     if (len == 0) {
-	flag = -1;
-	block = "";
-	NE_DEBUG(NE_DBG_XMLPARSE, "XML: End of document.\n");
+      flag = -1;
+      block = "";
+      NE_DEBUG(NE_DBG_XMLPARSE, "XML: End of document.\n");
     } else {	
-	NE_DEBUG(NE_DBG_XMLPARSE, "XML: Parsing %" NE_FMT_SIZE_T " bytes.\n", len);
-	flag = 0;
+      NE_DEBUG(NE_DBG_XMLPARSE, "XML: Parsing %" NE_FMT_SIZE_T " bytes.\n", len);
+      flag = 0;
     }
 
 #ifdef NEED_BOM_HANDLING
@@ -529,13 +530,14 @@ int ne_xml_parse(ne_xml_parser *p, const char *block, size_t len)
 #ifdef HAVE_EXPAT
     ret = XML_Parse(p->parser, block, len, flag);
     NE_DEBUG(NE_DBG_XMLPARSE, "XML: XML_Parse returned %d\n", ret);
+    /* p->failure = 0; */
     if (ret == 0 && p->failure == 0) {
-	ne_snprintf(p->error, ERR_SIZE,
-		    "XML parse error at line %d: %s", 
-		    XML_GetCurrentLineNumber(p->parser),
-		    XML_ErrorString(XML_GetErrorCode(p->parser)));
-	p->failure = 1;
-        NE_DEBUG(NE_DBG_XMLPARSE, "XML: Parse error: %s\n", p->error);
+      ne_snprintf(p->error, ERR_SIZE,
+                  "XML parse error at line %d: %s", 
+                  XML_GetCurrentLineNumber(p->parser),
+                  XML_ErrorString(XML_GetErrorCode(p->parser)));
+      p->failure = 1;
+      NE_DEBUG(NE_DBG_XMLPARSE, "XML: Parse error: %s\n", p->error);
     }
 #else
     ret = xmlParseChunk(p->parser, block, len, flag);
@@ -543,10 +545,10 @@ int ne_xml_parse(ne_xml_parser *p, const char *block, size_t len)
     /* Parse errors are normally caught by the sax_error() callback,
      * which clears p->valid. */
     if (p->parser->errNo && p->failure == 0) {
-	ne_snprintf(p->error, ERR_SIZE, "XML parse error at line %d.", 
-		    ne_xml_currentline(p));
-	p->failure = 1;
-        NE_DEBUG(NE_DBG_XMLPARSE, "XML: Parse error: %s\n", p->error);
+      ne_snprintf(p->error, ERR_SIZE, "XML parse error at line %d.", 
+                  ne_xml_currentline(p));
+      p->failure = 1;
+      NE_DEBUG(NE_DBG_XMLPARSE, "XML: Parse error: %s\n", p->error);
     }
 #endif
     return p->failure;

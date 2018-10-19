@@ -234,12 +234,12 @@ static int lock_on_no_file(void)
    
     /* Copy of nulllock resource */
     ONN("COPY null locked resource should ",
-	ne_copy(i_session, 1, NE_DEPTH_ZERO, res, tmp) == NE_ERROR);
+        ne_copy(i_session, 1, NE_DEPTH_ZERO, res, tmp) == NE_ERROR);
      
     /* Delete of nulllockresource */
     ONN("DELETE of locknull resource by owner", 
 	ne_delete(i_session, tmp) == NE_ERROR);
-    free(tmp);
+    free(tmp); 
 
     /* Move of nulllockresource */
     tmp = ne_concat(i_path, "who-cares", NULL);
@@ -259,33 +259,36 @@ static int lock_on_no_file(void)
       * moved (with overwrite T/F)
       * PUT request on locknullresource should succeed. 
       */
-     
+
 
     /* MOVE of null-locked resource with overwrite=T */
-    ONN("MOVE of null-locked resource with overwrite=T (1)", 
-	ne_move(i_session, 1, res, tmp) == NE_ERROR);
-    ne_lockstore_remove(store, gotlock);
-    getlock(ne_lockscope_exclusive, NE_DEPTH_ZERO);
-	if (STATUS(201)) 
-		t_warning("Lock Null returned %d not 201", GETSTATUS);
-    ONN("MOVE of null-locked resource with overwrite=T (2)", 
-	ne_move(i_session, 1, res, tmp) == NE_ERROR);
-	
-    ne_lockstore_remove(store, gotlock);
-    getlock(ne_lockscope_shared, NE_DEPTH_ZERO);
-	if (STATUS(201)) 
-		t_warning("Lock Null returned %d not 201", GETSTATUS);
-    
-    ONN("COPY on null-locked resource with overwrite=T", 
-	ne_copy(i_session, 1, NE_DEPTH_ZERO, tmp, res) == NE_ERROR);
+  ONN("MOVE of null-locked resource with overwrite=T (1)", 
+      ne_move(i_session, 1, res, tmp) == NE_ERROR);
+  ne_lockstore_remove(store, gotlock);
+  getlock(ne_lockscope_exclusive, NE_DEPTH_ZERO);
+  if (STATUS(201)){
+  	t_warning("Lock Null returned %d not 201", GETSTATUS);  
+  }
 
-   ONN("DELETE of locknull resource by owner after a MOVE (T) ", 
-	ne_delete(i_session, tmp) == NE_ERROR);
+  ONN("MOVE of null-locked resource with overwrite=T (2)", 
+      ne_move(i_session, 1, res, tmp) == NE_ERROR);
+
+  ne_lockstore_remove(store, gotlock);
+  getlock(ne_lockscope_shared, NE_DEPTH_ZERO);
+	if (STATUS(201)){
+  	t_warning("Lock Null returned %d not 201", GETSTATUS);  
+  }
+
+  ONN("COPY on null-locked resource with overwrite=T",
+      ne_copy(i_session, 1, NE_DEPTH_ZERO, tmp, res) == NE_ERROR);
+
+  ONN("DELETE of locknull resource by owner after a MOVE (T) ", 
+      ne_delete(i_session, tmp) == NE_ERROR);
     free(tmp);
 
     /* Put on nulllockresource */
-    ONV(ne_put(i_session,res, i_foo_fd),
-	 ("PUT on locknullfile resource failed: %s", ne_get_error(i_session)));
+  ONV(ne_put(i_session,res, i_foo_fd),
+      ("PUT on locknullfile resource failed: %s", ne_get_error(i_session)));
 
   
 

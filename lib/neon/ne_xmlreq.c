@@ -29,21 +29,21 @@
 static int parse_error(ne_session *sess, ne_xml_parser *parser)
 {
     ne_set_error(sess, _("Could not parse response: %s"),
-                 ne_xml_get_error(parser));
+               ne_xml_get_error(parser));
     ne_close_connection(sess);
     return NE_ERROR;
 }
 
 int ne_xml_parse_response(ne_request *req, ne_xml_parser *parser)
 {
-    char buf[8000];
+    char buf[8000] = {0};
     ssize_t bytes;
     int ret = 0;
-
+  
     while ((bytes = ne_read_response_block(req, buf, sizeof buf)) > 0) {
-        ret = ne_xml_parse(parser, buf, bytes);
-        if (ret)
-            return parse_error(ne_get_session(req), parser);
+      ret = ne_xml_parse(parser, buf, bytes);
+      if (ret)
+        return parse_error(ne_get_session(req), parser);
     }
 
     if (bytes == 0) {

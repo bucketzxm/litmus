@@ -63,7 +63,7 @@ struct ne_propfind_handler_s {
 
     ne_props_result callback;
     void *userdata;
-};
+}ne_propfind_hander_s;
 
 #define ELM_flatprop (NE_207_STATE_TOP - 1)
 
@@ -144,10 +144,10 @@ static int propfind(ne_propfind_handler *handler,
     ret = ne_request_dispatch(req);
 
     if (ret == NE_OK && ne_get_status(req)->klass != 2) {
-	ret = NE_ERROR;
+      ret = NE_ERROR;
     } else if (ne_xml_failed(handler->parser)) {
-	ne_set_error(handler->sess, "%s", ne_xml_get_error(handler->parser));
-	ret = NE_ERROR;
+      ne_set_error(handler->sess, "%s", ne_xml_get_error(handler->parser));
+      ret = NE_ERROR;
     }
 
     return ret;
@@ -211,24 +211,23 @@ int ne_propfind(ne_propfind_handler *handler,const char *xmlbody,
 
     if(xmlbody!=NULL)
     {
-    	ne_buffer_concat(handler->body, 
-		    "<?xml version=\"1.0\" encoding=\"utf-8\"?>" EOL , NULL);
-	if(method == ne_propfind_method)
-	{
-    		ne_buffer_concat(handler->body, 
-		                "<D:propfind xmlns:D=\"DAV:\">" , NULL);
-		ne_buffer_zappend(handler->body, xmlbody);
-		ne_buffer_zappend(handler->body, "</D:propfind>" EOL);		
-	}
-	else
-	{
-    		ne_buffer_concat(handler->body, 
-		               "<D:propertyupdate xmlns:D=\"DAV:\">" , NULL);
-		ne_buffer_zappend(handler->body, xmlbody);
-		ne_buffer_zappend(handler->body, "</D:propertyupdate>" EOL);
+    	ne_buffer_concat(handler->body, "<?xml version=\"1.0\" encoding=\"utf-8\"?>" EOL , NULL);
+      if(method == ne_propfind_method)
+        {
+          ne_buffer_concat(handler->body,
+                           "<D:propfind xmlns:D=\"DAV:\">" , NULL);
+          ne_buffer_zappend(handler->body, xmlbody);
+          ne_buffer_zappend(handler->body, "</D:propfind>" EOL);
+        }
+      else
+        {
+          ne_buffer_concat(handler->body, 
+                           "<D:propertyupdate xmlns:D=\"DAV:\">" , NULL);
+          ne_buffer_zappend(handler->body, xmlbody);
+          ne_buffer_zappend(handler->body, "</D:propertyupdate>" EOL);
 
-	}
-	ne_add_request_header(req, "Content-Type", NE_XML_MEDIA_TYPE);
+        }
+      ne_add_request_header(req, "Content-Type", NE_XML_MEDIA_TYPE);
     }
 
     /* Register the flat property handler to catch any properties 
@@ -615,7 +614,7 @@ static void end_response(void *userdata, void *resource,
 
     /* Pass back the results for this resource. */
     if (handler->callback && set->numpstats > 0)
-	handler->callback(handler->userdata, set->href, set);
+      handler->callback(handler->userdata, set->href, set);
 
     /* Clean up the propset tree we've just built. */
     free_propset(set);
@@ -721,9 +720,9 @@ int ne_simple_propfind(ne_session *sess, const char *href, int depth,
 
     hdl = ne_propfind_create(sess, href, depth,"PROPFIND");
     if (props != NULL) {
-	ret = ne_propfind_named(hdl, props, results, userdata);
+      ret = ne_propfind_named(hdl, props, results, userdata);
     } else {
-	ret = ne_propfind_allprop(hdl, results, userdata);
+      ret = ne_propfind_allprop(hdl, results, userdata);
     }
 	
     ne_propfind_destroy(hdl);

@@ -98,7 +98,7 @@ static void d0_results(void *userdata, const char *uri,
     }
 
     if (ne_path_compare(uri, i_path)) {
-	t_warning("response href for wrong resource");
+      t_warning("response href for wrong resource");
     } else {
 	struct private *priv = ne_propset_private(rset);
 	if (!priv->collection) {
@@ -149,7 +149,7 @@ static int propfind_d0(void)
     ret = ne_propfind_named(r.ph, props, d0_results, &r);
 
     if (r.result) {
-	return r.result;
+      return r.result;
     }
 
     return OK;
@@ -235,10 +235,9 @@ static int propfind_d1(void)
     t_context("PROPFIND did not return the newly added resource %s", prop_uri);
 
     ONMREQ("PROPFIND", prop_uri,
-	   ne_simple_propfind(i_session, i_path, NE_DEPTH_ONE,
-			      NULL, d1_results, &r));
+           ne_simple_propfind(i_session, i_path, NE_DEPTH_ONE, NULL, d1_results, &r));
     if (r.result) {
-	return r.result;
+      return r.result;
     }
 
 	return OK;

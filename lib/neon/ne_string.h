@@ -61,11 +61,12 @@ size_t ne_unbase64(const char *data, unsigned char **out);
  * string buffer ne_buffer * which grows dynamically with the
  * string. */
 
-typedef struct {
+typedef struct ne_buffer {
     char *data; /* contents: null-terminated string. */
     size_t used; /* used bytes in buffer */
     size_t length; /* length of buffer */
-} ne_buffer;
+}ne_buffer;
+// struct ne_buffer ne_buffer;
 
 /* Returns size of data in buffer, equiv to strlen(ne_buffer_data(buf)) */
 #define ne_buffer_size(buf) ((buf)->used - 1)
